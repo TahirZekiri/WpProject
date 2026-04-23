@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${'Entry #' + entry.id + ' - TextClassifier'}">Entry Detail</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .content-box {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.75;
+            font-size: 1rem;
+        }
+        .meta-row { border-top: 1px solid #f0f0f0; padding-top: 1rem; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/navigation :: navbar}"></div>
+
+<main class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Back + actions bar -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a th:href="@{/entries}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>All Entries
+                </a>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/entries/{id}/edit(id=${entry.id})}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil me-1"></i>Edit
+                    </a>
+                    <button type="button" class="btn btn-sm btn-outline-danger"
+                            data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4 p-lg-5">
+
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-file-text me-2 text-primary"></i>Entry
+                            <span class="text-muted fw-normal" th:text="${'#' + entry.id}"></span>
+                        </h5>
+                        <small class="text-muted text-nowrap"
+                               th:text="${#temporals.format(entry.createdAt, 'dd MMM yyyy, HH:mm')}"></small>
+                    </div>
+
+                    <!-- Text content -->
+                    <div class="content-box" th:text="${entry.content}"></div>
+
+                    <!-- Metadata -->
+                    <div class="meta-row">
+                        <div class="row g-3">
+
+                            <div class="col-sm-6">
+                                <div class="text-muted small mb-1">
+                                    <i class="bi bi-tag me-1"></i>Type
+                                </div>
+                                <span class="badge bg-primary fs-6 fw-normal px-3 py-2"
+                                      th:text="${entry.textType.displayName}"></span>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="text-muted small mb-1">
+                                    <i class="bi bi-emoji-smile me-1"></i>Tone
+                                </div>
+                                <span class="badge bg-success fs-6 fw-normal px-3 py-2"
+                                      th:text="${entry.textTone.displayName}"></span>
+                            </div>
+
+                            <div class="col-sm-6" th:if="${!entry.labels.isEmpty()}">
+                                <div class="text-muted small mb-1">
+                                    <i class="bi bi-bookmark me-1"></i>Labels
+                                </div>
+                                <div class="d-flex flex-wrap gap-1">
+                                    <span th:each="label : ${entry.labels}"
+                                          class="badge bg-secondary fs-6 fw-normal px-3 py-2"
+                                          th:text="${label.name}"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6" th:if="${!entry.entities.isEmpty()}">
+                                <div class="text-muted small mb-1">
+                                    <i class="bi bi-building me-1"></i>Entities
+                                </div>
+                                <div class="d-flex flex-wrap gap-1">
+                                    <span th:each="entity : ${entry.entities}"
+                                          class="badge bg-info text-dark fs-6 fw-normal px-3 py-2"
+                                          th:text="${entity.name}"></span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<!-- Delete confirmation modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h6 class="modal-title text-danger" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle me-1"></i>Delete Entry
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <p class="mb-0 text-muted">This entry will be permanently deleted. This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <form th:action="@{/entries/delete/{id}(id=${entry.id})}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

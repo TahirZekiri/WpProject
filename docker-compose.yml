@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:17
+    container_name: textclassifier-db
+    environment:
+      POSTGRES_DB: textclassifier
+      POSTGRES_USER: wp
+      POSTGRES_PASSWORD: wp
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:

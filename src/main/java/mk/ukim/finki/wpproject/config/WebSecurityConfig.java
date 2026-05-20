@@ -1,5 +1,7 @@
 package mk.ukim.finki.wpproject.config;
 
+
+
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 
@@ -19,7 +20,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 @AllArgsConstructor
 public class WebSecurityConfig {
-    private final PasswordEncoder passwordEncoder;
     private final AuthProvider authProvider;
 
     @Bean
@@ -30,15 +30,27 @@ public class WebSecurityConfig {
                 .headers((headers) -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                 )
-                .authorizeHttpRequests((requests) -> requests
+
+                .authorizeHttpRequests(requests -> requests
+                        .requestMatchers(
+                                "/login",
+                                "/register",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/webjars/**",
+                                "/h2-console/**"
+                        ).permitAll()
                         .anyRequest()
-                        .permitAll()
+                        .authenticated()
                 )
-                .formLogin((form) -> form
+
+                .formLogin(form -> form
                         .loginPage("/login")
-                        .permitAll()
-                        .failureUrl("/login?error=BadCredentials")
+                        .loginProcessingUrl("/login")
+                        .failureUrl("/login?error=true")
                         .defaultSuccessUrl("/", true)
+                        .permitAll()
                 )
                 .logout((logout) -> logout
                         .logoutUrl("/logout")
@@ -46,10 +58,15 @@ public class WebSecurityConfig {
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .logoutSuccessUrl("/login")
+                )
+
+                .exceptionHandling(ex -> ex
+                        .accessDeniedPage("/access-denied")
+                )
+
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin())
                 );
-//                .exceptionHandling((ex) -> ex
-//                        .accessDeniedPage("/access_denied")
-//                );
 
         return http.build();
     }

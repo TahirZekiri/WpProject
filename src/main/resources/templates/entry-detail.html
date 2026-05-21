@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,7 +34,7 @@
                 <a th:href="@{/entries}" class="btn btn-sm btn-outline-secondary">
                     <i class="bi bi-arrow-left me-1"></i>All Entries
                 </a>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2" sec:authorize="hasRole('ADMINISTRATOR')">
                     <a th:href="@{/entries/{id}/edit(id=${entry.id})}" class="btn btn-sm btn-outline-primary">
                         <i class="bi bi-pencil me-1"></i>Edit
                     </a>

@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import mk.ukim.finki.wpproject.model.CustomEntity;
 import mk.ukim.finki.wpproject.model.CustomLabel;
 import mk.ukim.finki.wpproject.model.TextEntry;
+import mk.ukim.finki.wpproject.model.User;
+import mk.ukim.finki.wpproject.model.dto.TextEntryFilterDto;
+import mk.ukim.finki.wpproject.model.enums.Role;
 import mk.ukim.finki.wpproject.model.enums.TextTone;
 import mk.ukim.finki.wpproject.model.enums.TextType;
 import mk.ukim.finki.wpproject.model.exceptions.InvalidTextEntryException;
@@ -12,12 +15,22 @@ import mk.ukim.finki.wpproject.repository.CustomEntityRepository;
 import mk.ukim.finki.wpproject.repository.CustomLabelRepository;
 import mk.ukim.finki.wpproject.repository.TextEntryRepository;
 import mk.ukim.finki.wpproject.service.TextEntryService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static mk.ukim.finki.wpproject.service.FieldFilterSpecification.filterEquals;
+import static mk.ukim.finki.wpproject.service.FieldFilterSpecification.filterEqualsV;
 
 @Service
 @RequiredArgsConstructor
@@ -33,8 +46,15 @@ public class TextEntryServiceImpl implements TextEntryService {
     }
 
     @Override
-    public List<TextEntry> findRecent(int limit) {
-        return textEntryRepository.findAllByOrderByCreatedAtDesc()
+    public List<TextEntry> findRecent(User user, int limit) {
+        List<TextEntry> entries;
+
+        if (user.getRole() == Role.ROLE_ADMINISTRATOR) {
+            entries = textEntryRepository.findAllByOrderByCreatedAtDesc();
+        } else {
+            entries = textEntryRepository.findAllByUser_UsernameOrderByCreatedAtAsc(user.getUsername());
+        }
+        return entries
                 .stream()
                 .limit(limit)
                 .collect(Collectors.toList());
@@ -46,11 +66,12 @@ public class TextEntryServiceImpl implements TextEntryService {
     }
 
     @Override
-    public TextEntry create(String content, TextType textType, TextTone textTone, List<Long> labelIds, List<Long> entityIds) {
+    public TextEntry create(User user, String content, TextType textType, TextTone textTone, List<Long> labelIds, List<Long> entityIds) {
         if (content == null || content.isBlank()) {
             throw new InvalidTextEntryException("Content cannot be empty");
         }
         TextEntry entry = new TextEntry();
+        entry.setUser(user);
         entry.setContent(content);
         entry.setTextType(textType);
         entry.setTextTone(textTone);
@@ -89,5 +110,32 @@ public class TextEntryServiceImpl implements TextEntryService {
             throw new TextEntryNotFoundException(id);
         }
         textEntryRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<TextEntry> findAllPaged(User user, TextEntryFilterDto filterDto) {
+        filterDto.normalize();
+        List<Specification<TextEntry>> filters = new ArrayList<>();
+
+        filters.add(filterEquals(TextEntry.class, "id", filterDto.getId()));
+        filters.add(filterEqualsV(TextEntry.class, "textType", filterDto.getTextType()));
+        filters.add(filterEqualsV(TextEntry.class, "textTone", filterDto.getTextTone()));
+
+        if (!user.getRole().equals(Role.ROLE_ADMINISTRATOR)) {
+            filters.add(filterEquals(TextEntry.class, "user.username", user.getUsername()));
+        }
+
+
+        Specification<TextEntry> specification = filters.stream()
+                .filter(Objects::nonNull)
+                .reduce(Specification.unrestricted(), Specification::and);
+
+        Pageable pageable = PageRequest.of(
+                filterDto.getPageNum() - 1,
+                filterDto.getPageSize(),
+                Sort.by(Sort.Direction.ASC, filterDto.getSortBy())
+        );
+
+        return textEntryRepository.findAll(specification, pageable);
     }
 }

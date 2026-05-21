@@ -41,6 +41,12 @@ public class WebSecurityConfig {
                                 "/webjars/**",
                                 "/h2-console/**"
                         ).permitAll()
+                        .requestMatchers(
+                                "/users/**",
+                                "/entities/**",
+                                "/labels/**"
+                        )
+                        .hasRole("ADMINISTRATOR")
                         .anyRequest()
                         .authenticated()
                 )

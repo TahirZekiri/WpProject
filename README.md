@@ -74,6 +74,22 @@ To also delete all stored data: `docker compose down -v`
 
 ---
 
+## Default Login Users
+
+When the application starts with an empty database, it automatically creates the following users:
+
+| Username | Password | Role |
+|----------|----------|------|
+| `admin`  | `admin`  | Administrator |
+| `user1`  | `user1`  | User |
+| `user2`  | `user2`  | User |
+
+The default users are inserted only if the users table is empty.
+
+Use the administrator account to manage users and access admin-only actions such as editing or deleting entries.
+Use the normal user accounts to test standard user permissions.
+
+---
 ## Project Structure
 
 ```

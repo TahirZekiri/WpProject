@@ -42,11 +42,14 @@ public class WebSecurityConfig {
                                 "/h2-console/**"
                         ).permitAll()
                         .requestMatchers(
-                                "/users/**",
+                                "/users/**"
+                        )
+                        .hasRole("ADMINISTRATOR")
+                        .requestMatchers(
                                 "/entities/**",
                                 "/labels/**"
                         )
-                        .hasRole("ADMINISTRATOR")
+                        .authenticated()
                         .anyRequest()
                         .authenticated()
                 )

@@ -109,8 +109,7 @@
                                 <span><i class="bi bi-bookmark me-1"></i>Custom Label</span>
                                 <button type="button" class="btn btn-sm btn-outline-secondary p-0 px-1 lh-1"
                                         data-bs-toggle="modal" data-bs-target="#addLabelModal"
-                                        title="Add new label"
-                                        sec:authorize="hasRole('ADMINISTRATOR')">
+                                        title="Add new label">
                                     <i class="bi bi-plus-lg"></i>
                                 </button>
                             </div>
@@ -124,8 +123,7 @@
                                            th:text="${label.name}"></label>
                                 </div>
                                 <span th:if="${customLabels.isEmpty()}" class="text-muted small fst-italic">
-                                    No labels yet
-                                    <span sec:authorize="hasRole('ADMINISTRATOR')">— click <i class="bi bi-plus-lg"></i> to create one.</span>
+                                    No labels yet — click <i class="bi bi-plus-lg"></i> to create one.
                                 </span>
                             </div>
                         </div>
@@ -136,8 +134,7 @@
                                 <span><i class="bi bi-building me-1"></i>Custom Entity</span>
                                 <button type="button" class="btn btn-sm btn-outline-secondary p-0 px-1 lh-1"
                                         data-bs-toggle="modal" data-bs-target="#addEntityModal"
-                                        title="Add new entity"
-                                        sec:authorize="hasRole('ADMINISTRATOR')">
+                                        title="Add new entity">
                                     <i class="bi bi-plus-lg"></i>
                                 </button>
                             </div>
@@ -151,8 +148,7 @@
                                            th:text="${entity.name}"></label>
                                 </div>
                                 <span th:if="${customEntities.isEmpty()}" class="text-muted small fst-italic">
-                                    No entities yet
-                                    <span sec:authorize="hasRole('ADMINISTRATOR')">— click <i class="bi bi-plus-lg"></i> to create one.</span>
+                                    No entities yet — click <i class="bi bi-plus-lg"></i> to create one.
                                 </span>
                             </div>
                         </div>

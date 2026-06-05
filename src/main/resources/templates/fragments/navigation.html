@@ -1,70 +1,99 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<body>
-<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-    <div class="container">
+<!doctype html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  lang="en"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+  <body>
+    <nav
+      th:fragment="navbar"
+      class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm"
+    >
+      <div class="container">
         <a class="navbar-brand fw-bold" th:href="@{/}">
-            <i class="bi bi-chat-square-text me-2"></i>TextClassifier
+          <i class="bi bi-chat-square-text me-2"></i>TextClassifier
         </a>
-        <button class="navbar-toggler" type="button"
-                data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-lg-center">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/}">
-                        <i class="bi bi-house me-1"></i>Home
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/entries}">
-                        <i class="bi bi-list-ul me-1"></i>Entries
-                    </a>
-                </li>
-                <li class="nav-item" sec:authorize="hasRole('ADMINISTRATOR')">
-                    <a class="nav-link" th:href="@{/users}">
-                        <i class="bi bi-people me-1"></i>Users
-                    </a>
-                </li>
+          <ul class="navbar-nav ms-auto align-items-lg-center">
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/}">
+                <i class="bi bi-house me-1"></i>Home
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/entries}">
+                <i class="bi bi-list-ul me-1"></i>Entries
+              </a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('ADMINISTRATOR')">
+              <a class="nav-link" th:href="@{/users}">
+                <i class="bi bi-people me-1"></i>Users
+              </a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('ADMINISTRATOR')">
+              <a class="nav-link" th:href="@{/admin/dashboard}">
+                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+              </a>
+            </li>
 
-                <li class="nav-item dropdown ms-lg-2" sec:authorize="isAuthenticated()">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#"
-                       role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle me-1"></i>
-                        <span sec:authentication="name"></span>
-                    </a>
-
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-            <span class="dropdown-item-text text-muted small">
-                Logged in as
-            </span>
-                        </li>
-
-                        <li>
-            <span class="dropdown-item-text fw-semibold">
-                <i class="bi bi-person me-1"></i>
+            <li
+              class="nav-item dropdown ms-lg-2"
+              sec:authorize="isAuthenticated()"
+            >
+              <a
+                class="nav-link dropdown-toggle d-flex align-items-center"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="bi bi-person-circle me-1"></i>
                 <span sec:authentication="name"></span>
-            </span>
-                        </li>
+              </a>
 
-                        <li><hr class="dropdown-divider"></li>
-
-                        <li>
-                            <form th:action="@{/logout}" method="post" class="px-3">
-                                <button type="submit" class="btn btn-sm btn-outline-danger w-100">
-                                    <i class="bi bi-box-arrow-right me-1"></i>
-                                    Logout
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <span class="dropdown-item-text text-muted small">
+                    Logged in as
+                  </span>
                 </li>
-            </ul>
+
+                <li>
+                  <span class="dropdown-item-text fw-semibold">
+                    <i class="bi bi-person me-1"></i>
+                    <span sec:authentication="name"></span>
+                  </span>
+                </li>
+
+                <li><hr class="dropdown-divider" /></li>
+
+                <li>
+                  <form th:action="@{/logout}" method="post" class="px-3">
+                    <button
+                      type="submit"
+                      class="btn btn-sm btn-outline-danger w-100"
+                    >
+                      <i class="bi bi-box-arrow-right me-1"></i>
+                      Logout
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </li>
+          </ul>
         </div>
-    </div>
-</nav>
-</body>
+      </div>
+    </nav>
+  </body>
 </html>

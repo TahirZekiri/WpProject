@@ -71,7 +71,6 @@ public class TextEntryController {
     }
 
     @PostMapping("/add")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public String addEntry(@AuthenticationPrincipal User user,
                            @RequestParam String content,
                            @RequestParam TextType textType,

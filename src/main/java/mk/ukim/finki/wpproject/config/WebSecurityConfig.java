@@ -42,7 +42,8 @@ public class WebSecurityConfig {
                                 "/h2-console/**"
                         ).permitAll()
                         .requestMatchers(
-                                "/users/**"
+                                "/users/**",
+                                "/admin/**"
                         )
                         .hasRole("ADMINISTRATOR")
                         .requestMatchers(

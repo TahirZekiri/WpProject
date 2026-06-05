@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import mk.ukim.finki.wpproject.model.CustomEntity;
 import mk.ukim.finki.wpproject.service.CustomEntityService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,7 @@ public class CustomEntityController {
 
     @PostMapping("/delete")
     @ResponseBody
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<Void> deleteEntity(@RequestParam Long id) {
         customEntityService.deleteById(id);
         return ResponseEntity.ok().build();

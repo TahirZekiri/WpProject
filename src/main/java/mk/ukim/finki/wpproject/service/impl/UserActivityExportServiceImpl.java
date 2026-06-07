@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Writer;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,11 +39,12 @@ public class UserActivityExportServiceImpl implements UserActivityExportService 
                         .map(t -> t.name() + ": " + t.count())
                         .collect(Collectors.joining("; "));
 
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm", Locale.ENGLISH);
                 printer.printRecord(
                         activity.username(),
                         activity.fullName(),
                         activity.entriesCreated(),
-                        activity.lastActivityDate() != null ? activity.lastActivityDate().toString() : "—",
+                        activity.lastActivityDate() != null ? activity.lastActivityDate().format(formatter) : "—",
                         activity.labelsUsed(),
                         activity.entitiesUsed(),
                         typeBreakdown.isEmpty() ? "—" : typeBreakdown,
@@ -91,10 +94,11 @@ public class UserActivityExportServiceImpl implements UserActivityExportService 
                         .map(t -> t.name() + ": " + t.count())
                         .collect(Collectors.joining("\n"));
 
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm", Locale.ENGLISH);
                 table.addCell(activity.username());
                 table.addCell(activity.fullName());
                 table.addCell(String.valueOf(activity.entriesCreated()));
-                table.addCell(activity.lastActivityDate() != null ? activity.lastActivityDate().toString() : "—");
+                table.addCell(activity.lastActivityDate() != null ? activity.lastActivityDate().format(formatter) : "—");
                 table.addCell(String.valueOf(activity.labelsUsed()));
                 table.addCell(String.valueOf(activity.entitiesUsed()));
                 table.addCell(typeBreakdown.isEmpty() ? "—" : typeBreakdown);

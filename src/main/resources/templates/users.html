@@ -100,17 +100,22 @@
                             <span class="badge bg-secondary" th:text="${user.role}"></span>
                         </td>
                         <td class="text-end pe-4">
-                            <form th:action="@{/users/delete/{username}(username=${user.username})}"
-                                  method="post"
-                                  class="d-inline">
-                                <input type="hidden"
-                                       th:if="${_csrf != null}"
-                                       th:name="${_csrf.parameterName}"
-                                       th:value="${_csrf.token}">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash me-1"></i>Delete
-                                </button>
-                            </form>
+                            <a th:href="@{/users/{username}(username=${user.username})}"
+                               class="btn btn-sm btn-outline-primary me-1">
+                                <i class="bi bi-person-lines-fill me-1"></i>View
+                            </a>
+                            <a th:href="@{/entries(username=${user.username})}"
+                               class="btn btn-sm btn-outline-secondary me-1">
+                                <i class="bi bi-list-ul me-1"></i>View Entries
+                            </a>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal"
+                                    th:data-username="${user.username}"
+                                    th:data-action="@{/users/delete/{u}(u=${user.username})}">
+                                <i class="bi bi-trash me-1"></i>Delete
+                            </button>
                         </td>
                     </tr>
                     </tbody>
@@ -125,6 +130,39 @@
 
 </main>
 
+<!-- Delete confirmation modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Delete User
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <p class="mb-0">Are you sure you want to delete user <strong id="deleteModalUsername"></strong>?
+                    This will also permanently remove all their entries and cannot be undone.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteModalForm" method="post">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('deleteModal').addEventListener('show.bs.modal', function (event) {
+        const btn = event.relatedTarget;
+        document.getElementById('deleteModalUsername').textContent = btn.dataset.username;
+        document.getElementById('deleteModalForm').action = btn.dataset.action;
+    });
+</script>
 </body>
 </html>

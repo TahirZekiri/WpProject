@@ -5,6 +5,7 @@ import mk.ukim.finki.wpproject.model.User;
 import mk.ukim.finki.wpproject.model.dto.RegisterUserDto;
 import mk.ukim.finki.wpproject.model.dto.UserFilterDto;
 import mk.ukim.finki.wpproject.model.exceptions.*;
+import mk.ukim.finki.wpproject.repository.TextEntryRepository;
 import mk.ukim.finki.wpproject.repository.UserRepository;
 import mk.ukim.finki.wpproject.service.UserService;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ import static mk.ukim.finki.wpproject.service.FieldFilterSpecification.filterCon
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final TextEntryRepository textEntryRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -63,6 +65,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteByUsername(String username) {
+        textEntryRepository.deleteAll(textEntryRepository.findAllByUser_Username(username));
         userRepository.deleteByUsername(username);
     }
 

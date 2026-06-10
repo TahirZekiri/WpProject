@@ -123,6 +123,8 @@ public class TextEntryServiceImpl implements TextEntryService {
 
         if (!user.getRole().equals(Role.ROLE_ADMINISTRATOR)) {
             filters.add(filterEquals(TextEntry.class, "user.username", user.getUsername()));
+        } else if (filterDto.getUsername() != null && !filterDto.getUsername().isBlank()) {
+            filters.add(filterEquals(TextEntry.class, "user.username", filterDto.getUsername()));
         }
 
 

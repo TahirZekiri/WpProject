@@ -117,6 +117,52 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
+    public UserActivityDto getUserActivityByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+
+        Long entriesCreated = textEntryRepository.count(
+                (root, query, cb) -> cb.equal(root.get("user").get("username"), username)
+        );
+
+        LocalDateTime lastActivity = null;
+        Object lastActivityObj = textEntryRepository.getLastActivityDateByUsername(username);
+        if (lastActivityObj != null) {
+            lastActivity = (LocalDateTime) lastActivityObj;
+        }
+
+        Integer labelsUsed = textEntryRepository.countDistinctLabelsByUsername(username);
+        if (labelsUsed == null) labelsUsed = 0;
+
+        Integer entitiesUsed = textEntryRepository.countDistinctEntitiesByUsername(username);
+        if (entitiesUsed == null) entitiesUsed = 0;
+
+        List<TypeDistributionDto> typeBreakdown = textEntryRepository.countByTextTypeForUser(username)
+                .stream()
+                .map(row -> new TypeDistributionDto((String) row[0], ((Number) row[1]).longValue()))
+                .collect(Collectors.toList());
+
+        List<TypeDistributionDto> toneBreakdown = textEntryRepository.countByTextToneForUser(username)
+                .stream()
+                .map(row -> new TypeDistributionDto((String) row[0], ((Number) row[1]).longValue()))
+                .collect(Collectors.toList());
+
+        String fullName = (user.getName() != null ? user.getName() : "") + " " +
+                (user.getSurname() != null ? user.getSurname() : "");
+
+        return new UserActivityDto(
+                user.getUsername(),
+                fullName.trim(),
+                entriesCreated,
+                lastActivity,
+                labelsUsed,
+                entitiesUsed,
+                typeBreakdown,
+                toneBreakdown
+        );
+    }
+
+    @Override
     public List<ActivityTimelineDto> getActivityTimeline() {
         LocalDateTime cutoff = LocalDateTime.now().minusDays(30);
 

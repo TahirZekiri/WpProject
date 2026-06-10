@@ -73,11 +73,7 @@ public class Initializer {
     public void addLabelsAndEntities() {
         if (customLabelRepository.count() == 0) {
             List<CustomLabel> labels = List.of(
-                    new CustomLabel(null, "Customer Support"),
-                    new CustomLabel(null, "Bug Report"),
-                    new CustomLabel(null, "Product Feedback"),
-                    new CustomLabel(null, "Urgent Follow-up"),
-                    new CustomLabel(null, "Positive Review")
+                    new CustomLabel(null, "Product Feedback")
             );
 
             customLabelRepository.saveAll(labels);
@@ -85,11 +81,7 @@ public class Initializer {
 
         if (customEntityRepository.count() == 0) {
             List<CustomEntity> entities = List.of(
-                    new CustomEntity(null, "TextClassifier"),
-                    new CustomEntity(null, "Support Team"),
-                    new CustomEntity(null, "Mobile App"),
-                    new CustomEntity(null, "Billing"),
-                    new CustomEntity(null, "Dashboard")
+                    new CustomEntity(null, "Finki")
             );
 
             customEntityRepository.saveAll(entities);

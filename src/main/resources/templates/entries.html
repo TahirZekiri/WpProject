@@ -35,6 +35,23 @@
         </a>
     </div>
 
+    <!-- Username filter banner (admin viewing a specific user's entries) -->
+    <div th:if="${filterDto.username != null and !filterDto.username.isEmpty()}"
+         class="alert alert-info d-flex align-items-center justify-content-between mb-4 py-2">
+        <span>
+            <i class="bi bi-person-circle me-2"></i>
+            Showing entries for: <strong th:text="${filterDto.username}"></strong>
+        </span>
+        <div class="d-flex gap-2">
+            <a th:href="@{/users/{u}(u=${filterDto.username})}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Profile
+            </a>
+            <a th:href="@{/entries}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-x me-1"></i>Clear Filter
+            </a>
+        </div>
+    </div>
+
     <!-- Filters  -->
     <div class="card shadow-sm border-0 mb-4" th:if="${!page.isEmpty()}">
         <div class="card-body p-4">
@@ -42,6 +59,8 @@
 
                 <input type="hidden" name="page" value="1">
                 <input type="hidden" name="pageSize" th:value="${page.size}">
+                <input type="hidden" name="username" th:value="${filterDto.username}"
+                       th:if="${filterDto.username != null and !filterDto.username.isEmpty()}">
 
                 <div class="col-md-2">
                     <label for="id" class="form-label fw-semibold">Entry ID</label>

@@ -21,6 +21,8 @@ public class TextEntryFilterDto {
 
     private Long id;
 
+    private String username;
+
     private TextType textType;
 
     private TextTone textTone;

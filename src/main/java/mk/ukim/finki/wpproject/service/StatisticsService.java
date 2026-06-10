@@ -11,5 +11,7 @@ public interface StatisticsService {
 
     List<UserActivityDto> getUserActivityStats();
 
+    UserActivityDto getUserActivityByUsername(String username);
+
     List<ActivityTimelineDto> getActivityTimeline();
 }

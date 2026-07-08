@@ -90,6 +90,7 @@ public class Initializer {
 
     public void addTextEntries() {
         List<User> users = userRepository.findAll();
+        users.removeIf(u -> u.getUsername().equals("admin") && u.getRole().equals(Role.ROLE_ADMINISTRATOR));
         List<CustomLabel> labels = customLabelRepository.findAll();
         List<CustomEntity> entities = customEntityRepository.findAll();
 

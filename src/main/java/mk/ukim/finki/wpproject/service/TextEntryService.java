@@ -6,7 +6,9 @@ import mk.ukim.finki.wpproject.model.dto.TextEntryFilterDto;
 import mk.ukim.finki.wpproject.model.enums.TextTone;
 import mk.ukim.finki.wpproject.model.enums.TextType;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +22,8 @@ public interface TextEntryService {
     TextEntry create(User user, String content, TextType textType, TextTone textTone, List<Long> labelIds, List<Long> entityIds);
 
     TextEntry update(Long id, String content, TextType textType, TextTone textTone, List<Long> labelIds, List<Long> entityIds);
+
+    int importEntries(User user, MultipartFile file) throws IOException;
 
     void deleteById(Long id);
 

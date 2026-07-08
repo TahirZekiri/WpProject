@@ -15,18 +15,29 @@ import mk.ukim.finki.wpproject.repository.CustomEntityRepository;
 import mk.ukim.finki.wpproject.repository.CustomLabelRepository;
 import mk.ukim.finki.wpproject.repository.TextEntryRepository;
 import mk.ukim.finki.wpproject.service.TextEntryService;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static mk.ukim.finki.wpproject.service.FieldFilterSpecification.filterEquals;
@@ -105,6 +116,52 @@ public class TextEntryServiceImpl implements TextEntryService {
     }
 
     @Override
+    public int importEntries(User user, MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new InvalidTextEntryException("CSV file cannot be empty");
+        }
+
+        Map<String, CustomLabel> labelsByName = customLabelRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(label -> normalizeName(label.getName()), Function.identity(),
+                        (first, ignored) -> first));
+        Map<String, CustomEntity> entitiesByName = customEntityRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(entity -> normalizeName(entity.getName()), Function.identity(),
+                        (first, ignored) -> first));
+
+        List<TextEntry> entries = new ArrayList<>();
+        try (Reader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
+             CSVParser parser = CSVFormat.DEFAULT.builder()
+                     .setHeader()
+                     .setSkipHeaderRecord(true)
+                     .setIgnoreSurroundingSpaces(true)
+                     .setTrim(true)
+                     .build()
+                     .parse(reader)) {
+
+            for (CSVRecord record : parser) {
+                String content = record.get("content");
+                if (content == null || content.isBlank()) {
+                    continue;
+                }
+
+                TextEntry entry = new TextEntry();
+                entry.setUser(user);
+                entry.setContent(content);
+                entry.setTextType(parseTextType(record.get("textType")));
+                entry.setTextTone(parseTextTone(record.get("textTone")));
+                entry.setCreatedAt(LocalDateTime.now());
+                entry.setLabels(resolveLabels(getOptionalField(record, "labels"), labelsByName));
+                entry.setEntities(resolveEntities(getOptionalField(record, "entities"), entitiesByName));
+                entries.add(entry);
+            }
+        }
+
+        return textEntryRepository.saveAll(entries).size();
+    }
+
+    @Override
     public void deleteById(Long id) {
         if (!textEntryRepository.existsById(id)) {
             throw new TextEntryNotFoundException(id);
@@ -139,5 +196,55 @@ public class TextEntryServiceImpl implements TextEntryService {
         );
 
         return textEntryRepository.findAll(specification, pageable);
+    }
+
+    private TextType parseTextType(String value) {
+        return Arrays.stream(TextType.values())
+                .filter(type -> type.name().equalsIgnoreCase(value)
+                        || type.getDisplayName().equalsIgnoreCase(value))
+                .findFirst()
+                .orElseThrow(() -> new InvalidTextEntryException("Invalid text type: " + value));
+    }
+
+    private TextTone parseTextTone(String value) {
+        return Arrays.stream(TextTone.values())
+                .filter(tone -> tone.name().equalsIgnoreCase(value)
+                        || tone.getDisplayName().equalsIgnoreCase(value))
+                .findFirst()
+                .orElseThrow(() -> new InvalidTextEntryException("Invalid text tone: " + value));
+    }
+
+    private List<CustomLabel> resolveLabels(String value, Map<String, CustomLabel> labelsByName) {
+        return splitNames(value)
+                .stream()
+                .map(name -> labelsByName.computeIfAbsent(normalizeName(name),
+                        key -> customLabelRepository.save(new CustomLabel(null, name.trim()))))
+                .toList();
+    }
+
+    private List<CustomEntity> resolveEntities(String value, Map<String, CustomEntity> entitiesByName) {
+        return splitNames(value)
+                .stream()
+                .map(name -> entitiesByName.computeIfAbsent(normalizeName(name),
+                        key -> customEntityRepository.save(new CustomEntity(null, name.trim()))))
+                .toList();
+    }
+
+    private List<String> splitNames(String value) {
+        if (value == null || value.isBlank()) {
+            return List.of();
+        }
+        return Arrays.stream(value.split(";"))
+                .map(String::trim)
+                .filter(name -> !name.isBlank())
+                .toList();
+    }
+
+    private String normalizeName(String value) {
+        return value.trim().toLowerCase();
+    }
+
+    private String getOptionalField(CSVRecord record, String name) {
+        return record.isMapped(name) ? record.get(name) : null;
     }
 }

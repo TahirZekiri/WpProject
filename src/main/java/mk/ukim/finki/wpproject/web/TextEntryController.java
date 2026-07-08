@@ -8,14 +8,22 @@ import mk.ukim.finki.wpproject.model.enums.TextType;
 import mk.ukim.finki.wpproject.service.CustomEntityService;
 import mk.ukim.finki.wpproject.service.CustomLabelService;
 import mk.ukim.finki.wpproject.service.TextEntryService;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Controller
@@ -86,5 +94,36 @@ public class TextEntryController {
     public String deleteEntry(@PathVariable Long id) {
         textEntryService.deleteById(id);
         return "redirect:/entries";
+    }
+
+    @PostMapping("/import")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    public String importEntries(@AuthenticationPrincipal User user,
+                                @RequestParam("file") MultipartFile file,
+                                RedirectAttributes redirectAttributes) throws IOException {
+        int importedCount = textEntryService.importEntries(user, file);
+        redirectAttributes.addFlashAttribute("successMessage",
+                importedCount + " entries imported successfully.");
+        return "redirect:/entries";
+    }
+
+    @GetMapping("/import/template")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    public ResponseEntity<byte[]> downloadImportTemplate() {
+        String template = """
+                content,textType,textTone,labels,entities
+                "Please send the report by Friday.",REQUEST,FORMAL,"Work;Deadline","Report"
+                "Great job on the presentation!",FEEDBACK,FRIENDLY,"Praise","Presentation;Team"
+                "Can we move our meeting to 14:00?",QUESTION,CASUAL,"Schedule","Meeting"
+                """;
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment()
+                                .filename("text-entry-import-template.csv")
+                                .build()
+                                .toString())
+                .body(template.getBytes(StandardCharsets.UTF_8));
     }
 }
